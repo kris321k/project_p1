@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in | Ledgerly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+</head>
+<body class="login-page">
+    <main class="login-layout">
+        <section class="login-story"><div class="brand brand-light"><span class="brand-mark">L</span><span>ledgerly</span></div><div class="story-copy"><p class="eyebrow">EXPENSE OPERATIONS, MADE CLEAR</p><h1>Every request.<br><em>One calm place.</em></h1><p>Track spend, travel and approvals without losing the thread.</p></div><div class="story-footer"><span class="live-dot"></span> Secure workspace</div></section>
+        <section class="login-panel"><div class="login-card"><p class="eyebrow">WELCOME BACK</p><h2>Sign in to your workspace</h2><p class="muted">Use your company email and password to continue.</p><form id="login-form" class="form-stack"><label>Email<input type="email" name="email" autocomplete="email" required placeholder="you@company.com"></label><label>Password<input type="password" name="password" autocomplete="current-password" required placeholder="Enter your password"></label><button class="button button-primary button-wide" type="submit">Sign in <span>→</span></button><p class="form-message" id="login-message"></p></form></div><p class="login-footnote">Need access? Contact your workspace administrator.</p></section>
+    </main>
+    <script src="{{ url_for('static', filename='js/portal.js') }}"></script>
+</body>
+</html>
