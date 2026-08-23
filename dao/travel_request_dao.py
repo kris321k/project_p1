@@ -27,7 +27,7 @@ class TravelRequestDao:
                 db.select(TravelRequest).order_by(TravelRequest.created_at.desc())
             )
         )
-
+    
     def get_employee_requests(self, employee_id: int) -> list[TravelRequest]:
         return list(
             db.session.scalars(
@@ -36,7 +36,7 @@ class TravelRequestDao:
                 .order_by(TravelRequest.created_at.desc())
             )
         )
-
+    
     def get_requests_for_manager(self, manager_id: int, status: str | None = None) -> list[TravelRequest]:
         statement = (
             db.select(TravelRequest)

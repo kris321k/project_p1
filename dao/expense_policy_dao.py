@@ -54,7 +54,7 @@ class ExpensePolicyDao:
         except SQLAlchemyError:
             db.session.rollback()
             return None
-
+        
     def deactivate_policy(self, policy_id: int) -> ExpensePolicy | None:
         policy = self.get_policy_by_id(policy_id)
         if policy is None:

@@ -1,37 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Ledgerly{% endblock %} | Expense Portal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/portal.css') }}">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Expense Portal{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body data-page="{{ active_page|default('dashboard') }}">
-    <div class="app-shell">
-        <aside class="sidebar" id="sidebar">
-            <div class="brand"><span class="brand-mark">L</span><span>ledgerly</span></div>
-            <div class="workspace-label">YOUR WORKSPACE</div>
-            <nav class="nav-list" aria-label="Primary navigation">
-                <a class="nav-item {% if active_page == 'dashboard' %}active{% endif %}" href="{{ url_for('home') }}"><span class="nav-icon">⌂</span><span>Overview</span></a>
-                <a class="nav-item {% if active_page == 'claims' %}active{% endif %}" href="{{ url_for('claims') }}"><span class="nav-icon">▤</span><span>Expense claims</span></a>
-                <a class="nav-item {% if active_page == 'travel' %}active{% endif %}" href="{{ url_for('travel') }}"><span class="nav-icon">✈</span><span>Travel requests</span></a>
-                <a class="nav-item {% if active_page == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}"><span class="nav-icon">◴</span><span>Reports</span></a>
-            </nav>
-            <div class="sidebar-bottom">
-                <div class="workspace-note"><span class="live-dot"></span><span>API connected</span></div>
-                <button class="nav-item nav-button" id="logout-button"><span class="nav-icon">↪</span><span>Sign out</span></button>
-                <div class="profile-mini"><div class="avatar coral" data-user-initials>--</div><div><strong data-user-name>Signed in user</strong><small data-user-role>Authenticated</small></div></div>
-            </div>
-        </aside>
-        <main class="main-content">
-            <header class="topbar"><button class="mobile-menu" id="menu-toggle" aria-label="Open navigation">☰</button><div class="breadcrumb">Workspace <span>/</span> {% block breadcrumb %}Overview{% endblock %}</div><div class="top-actions"><button class="icon-button" id="refresh-button" aria-label="Refresh data">↻</button><div class="avatar coral" data-user-initials>--</div></div></header>
-            <div class="page-content">{% block content %}{% endblock %}</div>
-        </main>
-    </div>
-    <div class="toast-region" id="toast-region" aria-live="polite"></div>
-    <script src="{{ url_for('static', filename='js/portal.js') }}"></script>
-</body>
-</html>
+<body data-role="{{ role|default('') }}">
+<div id="toast" class="toast" role="status"></div>
+<div class="app">
+<aside class="sidebar"><a class="brand" href="/">Expense Portal</a><p class="role-label" id="role-label">{{ role|default('')|replace('_',' ')|title }}</p><nav id="navigation"></nav><button id="logout" class="nav-button">Log out</button></aside>
+<main class="main"><header class="topbar"><button id="menu" class="icon-button" aria-label="Open menu">&#9776;</button><div><span class="muted">Workspace</span><strong id="page-title">Dashboard</strong></div><span id="identity" class="identity"></span></header><div class="content">{% block content %}{% endblock %}</div></main>
+</div>
+<script src="{{ url_for('static', filename='js/api.js') }}"></script><script src="{{ url_for('static', filename='js/auth.js') }}"></script><script src="{{ url_for('static', filename='js/common.js') }}"></script><script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body></html>

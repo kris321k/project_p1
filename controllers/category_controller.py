@@ -4,16 +4,15 @@ from services.category_service import CategoryService
 from controllers.base_controller import get_payload, require_json_fields, require_roles, serialize, update_allowed
 category_controller = Blueprint("category", __name__)
 category_service = CategoryService(ExpenseCategoryDao())
-
-
 @category_controller.route("/categories", methods=["GET"])
-@require_roles("EMPLOYEE", "MANAGER", "FINANCE", "ADMIN", "SYSTEM_ADMIN")
+
+@require_roles("EMPLOYEE", "MANAGER", "FINANCE_ADMIN", "ADMIN", "SYSTEM_ADMIN")
 def get_categories():
     categories = category_service.get_active() if request.args.get("active") else category_service.get_all()
     return jsonify([serialize(category) for category in categories])
 
 @category_controller.route("/categories/<int:category_id>", methods=["GET"])
-@require_roles("EMPLOYEE", "MANAGER", "FINANCE", "ADMIN", "SYSTEM_ADMIN")
+@require_roles("EMPLOYEE", "MANAGER", "FINANCE_ADMIN", "ADMIN", "SYSTEM_ADMIN")
 def get_category(category_id):
     try:
         return jsonify(serialize(category_service.get_by_id(category_id)))
@@ -39,6 +38,7 @@ def deactivate_category(category_id):
         return jsonify({"message": "success", "category": serialize(category)})
     except Exception as error:
         return jsonify({"error": str(error)}), 400
+
     
 @category_controller.route("/categories/<int:category_id>", methods=["PUT"])
 @require_roles("ADMIN", "SYSTEM_ADMIN")

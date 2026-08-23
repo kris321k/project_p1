@@ -1,0 +1,4 @@
+function rolePath(role){return{EMPLOYEE:'/employee',MANAGER:'/manager',FINANCE:'/finance',FINANCE_ADMIN:'/finance',ADMIN:'/admin',SYSTEM_ADMIN:'/system-admin'}[String(role||'').toUpperCase()]||'/login'}
+function logout(){clearToken();location.href='/login'}
+const loginForm=document.querySelector('#login-form');if(loginForm){loginForm.addEventListener('submit',async event=>{event.preventDefault();const button=event.target.querySelector('button'),error=document.querySelector('#login-error');button.disabled=true;error.textContent='';try{const body=await apiFetch('/users/sigin',{method:'POST',body:JSON.stringify(jsonBody(event.target))});setToken(body.access_token);location.href=rolePath(tokenPayload().role)}catch(ex){error.textContent=ex.message;button.disabled=false}})}
+if(document.body.classList.contains('login-page')&&getToken())clearToken();

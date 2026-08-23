@@ -8,7 +8,7 @@ approval_controller = Blueprint("approval", __name__)
 approval_service = ApprovalService(ApprovalHistoryDao())
 
 @approval_controller.route("/approvals", methods=["GET"])
-@require_roles("MANAGER", "FINANCE", "ADMIN", "SYSTEM_ADMIN")
+@require_roles("MANAGER", "FINANCE_ADMIN", "ADMIN", "SYSTEM_ADMIN")
 def get_approvals():
     claim_id = request.args.get("claim_id", type=int)
     approver_id = request.args.get("approver_id", type=int)
@@ -21,7 +21,7 @@ def get_approvals():
     return jsonify([serialize(record) for record in records])
 
 @approval_controller.route("/approvals", methods=["POST"])
-@require_roles("MANAGER", "FINANCE", "ADMIN", "SYSTEM_ADMIN")
+@require_roles("MANAGER", "FINANCE_ADMIN", "ADMIN", "SYSTEM_ADMIN")
 def create_approval():
     try:
         data = get_payload()
@@ -32,11 +32,20 @@ def create_approval():
             raise ValueError("Action must be APPROVE, REJECT, or VERIFY")
         if current_user_role() == "MANAGER" and action not in {"APPROVE", "REJECT"}:
             raise ValueError("Managers can only approve or reject claims")
-        if current_user_role() == "FINANCE" and action not in {"VERIFY", "REJECT"}:
+        if current_user_role() == "FINANCE_ADMIN" and action not in {"VERIFY", "REJECT"}:
             raise ValueError("Finance can only verify or reject claims")
         claim = claim_service.get_by_id(data["claim_id"])
         if current_user_role() == "MANAGER" and claim.employee.manager_id != current_employee_id():
             return jsonify({"error": "Insufficient permissions"}), 403
+        if current_user_role() == "FINANCE_ADMIN":
+            if claim.status != "APPROVED":
+                raise ValueError("Only manager-approved claims can be verified")
+            if action == "REJECT" and not str(data.get("comment", "")).strip():
+                raise ValueError("A reason is required when returning a claim")
+            if action == "VERIFY":
+                validation = claim_service.finance_validation(claim)
+                if not validation["valid"]:
+                    raise ValueError("Claim has invalid expenses or missing required receipts")
         record = approval_service.save(data)
         claim_service.update_status(claim.id, {"APPROVE": "APPROVED", "REJECT": "REJECTED", "VERIFY": "VERIFIED"}[action])
         return jsonify({"message": "success", "approval": serialize(record)}), 201

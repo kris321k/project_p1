@@ -27,10 +27,16 @@ class ExpenseClaimDao:
                 db.select(ExpenseClaim).order_by(ExpenseClaim.created_at.desc())
             )
         )
+    db
 
     def get_claim_by_number(self, claim_number: str) -> ExpenseClaim | None:
         return db.session.scalar(
             db.select(ExpenseClaim).where(ExpenseClaim.claim_number == claim_number)
+        )
+
+    def get_claim_by_travel_request(self, travel_request_id: int) -> ExpenseClaim | None:
+        return db.session.scalar(
+            db.select(ExpenseClaim).where(ExpenseClaim.travel_request_id == travel_request_id)
         )
 
     def get_employee_claims(self, employee_id: int, status: str | None = None) -> list[ExpenseClaim]:
@@ -61,10 +67,7 @@ class ExpenseClaimDao:
     def search_claims(self, search_term: str, employee_id: int | None = None) -> list[ExpenseClaim]:
         pattern = f"%{search_term.strip()}%"
         statement = db.select(ExpenseClaim).where(
-            or_(
-                ExpenseClaim.claim_number.ilike(pattern),
-                ExpenseClaim.description.ilike(pattern),
-            )
+            ExpenseClaim.claim_number.ilike(pattern)
         )
         if employee_id is not None:
             statement = statement.where(ExpenseClaim.employee_id == employee_id)

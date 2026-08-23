@@ -33,27 +33,47 @@ register_api_controllers(app)
 
 @app.route("/")
 def home():
-    return render_template("employee/dashboard.html", active_page="dashboard")
+    return render_template("login.html")
 
 
 @app.route("/manager")
 def manager_dashboard():
-    return render_template("manager/dashboard.html", active_page="manager-dashboard")
+    return render_template("manager/dashboard.html", role="MANAGER")
 
 
-@app.route("/claims")
-def claims():
-    return render_template("employee/claims.html", active_page="claims")
+@app.route("/employee")
+def employee_dashboard():
+    return render_template("employee/dashboard.html", role="EMPLOYEE")
 
 
-@app.route("/travel")
-def travel():
-    return render_template("employee/travel.html", active_page="travel")
+@app.route("/employee/profile")
+def employee_profile():
+    return render_template("employee/view.html", role="EMPLOYEE", view="profile")
 
 
-@app.route("/reports")
-def reports():
-    return render_template("employee/reports.html", active_page="reports")
+@app.route("/employee/travel")
+def employee_travel():
+    return render_template("employee/view.html", role="EMPLOYEE", view="travel")
+
+
+@app.route("/employee/claims")
+def employee_claims():
+    return render_template("employee/view.html", role="EMPLOYEE", view="claims")
+
+
+@app.route("/finance")
+def finance_dashboard():
+    return render_template("finance/dashboard.html", role="FINANCE_ADMIN")
+
+
+@app.route("/admin")
+def admin_dashboard():
+    return render_template("admin/dashboard.html", role="ADMIN")
+
+
+@app.route("/system-admin")
+def system_admin_dashboard():
+    return render_template("admin/system_dashboard.html", role="SYSTEM_ADMIN")
 
 
 @app.route("/login")

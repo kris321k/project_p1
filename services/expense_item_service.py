@@ -56,6 +56,10 @@ class ExpenseItemService:
         return saved
 
     def update(self, item: ExpenseItem) -> ExpenseItem | None:
+        policy = ExpensePolicyDao().get_active_policy_for_category(item.category_id)
+        amount = float(item.amount)
+        if policy and policy.max_amount is not None and amount > float(policy.max_amount):
+            raise ValueError("Expense amount exceeds the category policy limit")
         saved = self.expense_item_dao.update_item(item)
         if saved is not None:
             self._refresh_claim_total(saved.claim_id)

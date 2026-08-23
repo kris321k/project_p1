@@ -1,3 +1,4 @@
+from datetime import datetime
 from dao.reimbursement_dao import ReimbursementDao
 from models.reimbursement import Reimbursement
 
@@ -17,13 +18,18 @@ class ReimbursementService:
     def get_by_claim(self, claim_id: int) -> Reimbursement | None:
         return self.reimbursement_dao.get_by_claim_id(claim_id)
 
+    def get_by_employee(self, employee_id: int) -> list[Reimbursement]:
+        return self.reimbursement_dao.get_by_employee_id(employee_id)
+
     def get_by_status(self, status: str) -> list[Reimbursement]:
         return self.reimbursement_dao.get_by_status(status)
 
     def get_processed_by(self, user_id: int) -> list[Reimbursement]:
         return self.reimbursement_dao.get_processed_by_user(user_id)
-
+    
     def save(self, data: dict) -> Reimbursement:
+        if self.get_by_claim(data["claim_id"]):
+            raise ValueError("A reimbursement already exists for this claim")
         reimbursement = Reimbursement(
             claim_id=data["claim_id"],
             amount=data["amount"],
@@ -46,4 +52,17 @@ class ReimbursementService:
             payment_method,
             transaction_reference,
         )
+
+    def update_status(self, reimbursement_id: int, status: str, data: dict) -> Reimbursement | None:
+        reimbursement = self.get_by_id(reimbursement_id)
+        transitions = {"PENDING": {"PROCESSING"}, "PROCESSING": {"PAID"}}
+        if status not in transitions.get(reimbursement.status, set()):
+            raise ValueError(f"Invalid reimbursement transition from {reimbursement.status} to {status}")
+        reimbursement.status = status
+        if status == "PAID":
+            reimbursement.payment_method = data.get("payment_method")
+            reimbursement.transaction_reference = data.get("transaction_reference")
+            reimbursement.processed_by = data["processed_by"]
+            reimbursement.processed_at = datetime.utcnow()
+        return self.reimbursement_dao.update_reimbursement(reimbursement)
     

@@ -35,10 +35,6 @@ class ExpenseClaim(db.Model):
         default="DRAFT",
         nullable=False
     )
-    description = db.Column(
-        db.Text,
-        nullable=True
-    )
     submitted_at = db.Column(
         db.DateTime,
         nullable=True

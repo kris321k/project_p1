@@ -47,7 +47,7 @@ def get_receipt(receipt_id):
         return jsonify({"error": str(error)}), 404
     
 @receipt_controller.route("/receipts", methods=["POST"])
-@require_roles("EMPLOYEE", "MANAGER", "FINANCE", "ADMIN", "SYSTEM_ADMIN")
+@require_roles("EMPLOYEE", "MANAGER", "FINANCE_ADMIN", "ADMIN", "SYSTEM_ADMIN")
 def create_receipt():
     try:
         data = get_payload()
@@ -59,14 +59,9 @@ def create_receipt():
         return jsonify({"error": str(error)}), 400
 
 @receipt_controller.route("/receipts/upload", methods=["POST"])
-@require_roles("EMPLOYEE", "MANAGER", "FINANCE", "ADMIN", "SYSTEM_ADMIN")
+@require_roles("EMPLOYEE", "MANAGER", "FINANCE_ADMIN", "ADMIN", "SYSTEM_ADMIN")
 def upload_receipt():
-    """
-    Upload a receipt file and attach it to an expense item.
-    - Employees can only attach receipts to their own claims.
-    - Managers / Finance / Admins can attach receipts to any claim.
-    """
-    # 1. Get and validate basic inputs
+
     upload = request.files.get("file")
     expense_item_id = request.form.get("expense_item_id", type=int)
 
@@ -76,12 +71,10 @@ def upload_receipt():
     if not expense_item_id:
         return jsonify({"error": "expense_item_id is required"}), 400
 
-    # 2. Validate file type (extension + MIME)
     extension = _receipt_extension(upload.filename)
     if extension not in ALLOWED_EXTENSIONS or upload.mimetype not in ALLOWED_MIME_TYPES:
         return jsonify({"error": "Only PDF, PNG, JPG, and JPEG receipts are supported"}), 400
 
-    # 3. Validate file size
     upload.seek(0, os.SEEK_END)
     file_size = upload.tell()
     upload.seek(0)
@@ -89,16 +82,15 @@ def upload_receipt():
     if file_size > MAX_RECEIPT_SIZE:
         return jsonify({"error": "Receipt file must be 10 MB or smaller"}), 413
 
-    # 4. Load the expense item and check permissions
     item = expense_item_service.get_by_id(expense_item_id)
     if item is None:
         return jsonify({"error": "Expense item not found"}), 404
 
-    # Employees may only attach receipts to their own claims
     if current_user_role() == "EMPLOYEE" and item.claim.employee_id != current_employee_id():
         return jsonify({"error": "You can only attach receipts to your own claim"}), 403
+    if current_user_role() == "EMPLOYEE" and item.claim.status in {"VERIFIED", "REIMBURSED"}:
+        return jsonify({"error": "Verified claims cannot be modified"}), 400
 
-    # 5. Generate a safe unique filename and save the file
     safe_name = f"{uuid.uuid4().hex}.{extension}"
     dest_path = os.path.join(current_app.config["RECEIPT_UPLOAD_FOLDER"], safe_name)
 
@@ -139,7 +131,11 @@ def upload_receipt():
 def download_receipt(receipt_id):
     try:
         receipt = receipt_service.get_by_id(receipt_id)
-        if current_user_role() not in {"FINANCE", "ADMIN", "SYSTEM_ADMIN"} and receipt.uploaded_by != current_user_id():
+        is_claim_manager = (
+            current_user_role() == "MANAGER"
+            and receipt.expense_item.claim.employee.manager_id == current_employee_id()
+        )
+        if current_user_role() not in {"FINANCE_ADMIN", "ADMIN", "SYSTEM_ADMIN"} and not is_claim_manager and receipt.uploaded_by != current_user_id():
             return jsonify({"error": "Insufficient permissions"}), 403
         return send_from_directory(
             current_app.config["RECEIPT_UPLOAD_FOLDER"],
@@ -149,9 +145,10 @@ def download_receipt(receipt_id):
         )
     except Exception as error:
         return jsonify({"error": str(error)}), 404
+
         
 @receipt_controller.route("/receipts/<int:receipt_id>", methods=["DELETE"])
-@require_roles("FINANCE", "ADMIN", "SYSTEM_ADMIN")
+@require_roles("FINANCE_ADMIN", "ADMIN", "SYSTEM_ADMIN")
 def delete_receipt(receipt_id):
     try:
         receipt = receipt_service.get_by_id(receipt_id)

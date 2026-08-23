@@ -15,10 +15,10 @@ class ExpenseCategoryDao:
         except SQLAlchemyError:
             db.session.rollback()
             return None
-
+        
     def get_category_by_id(self, category_id: int) -> ExpenseCategory | None:
         return db.session.get(ExpenseCategory, category_id)
-
+    
     def get_category_by_name(self, name: str) -> ExpenseCategory | None:
         return db.session.scalar(
             db.select(ExpenseCategory).where(ExpenseCategory.name == name)

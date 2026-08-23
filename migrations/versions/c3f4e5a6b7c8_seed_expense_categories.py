@@ -3,6 +3,8 @@
 Revision ID: c3f4e5a6b7c8
 Revises: 8ec2b8233308
 """
+from datetime import datetime
+
 from alembic import op
 import sqlalchemy as sa
 
@@ -18,13 +20,16 @@ def upgrade():
         sa.column("name", sa.String),
         sa.column("description", sa.Text),
         sa.column("is_active", sa.Boolean),
+        sa.column("created_at", sa.DateTime),
+        sa.column("updated_at", sa.DateTime),
     )
+    now = datetime.utcnow()
     op.bulk_insert(categories, [
-        {"name": "Accommodation", "description": "Hotels and lodging", "is_active": True},
-        {"name": "Transportation", "description": "Ground transportation and taxis", "is_active": True},
-        {"name": "Meals", "description": "Business meals and refreshments", "is_active": True},
-        {"name": "Flight", "description": "Business air travel", "is_active": True},
-        {"name": "Other business expenses", "description": "Other eligible business expenses", "is_active": True},
+        {"name": "Accommodation", "description": "Hotels and lodging", "is_active": True, "created_at": now, "updated_at": now},
+        {"name": "Transportation", "description": "Ground transportation and taxis", "is_active": True, "created_at": now, "updated_at": now},
+        {"name": "Meals", "description": "Business meals and refreshments", "is_active": True, "created_at": now, "updated_at": now},
+        {"name": "Flight", "description": "Business air travel", "is_active": True, "created_at": now, "updated_at": now},
+        {"name": "Other business expenses", "description": "Other eligible business expenses", "is_active": True, "created_at": now, "updated_at": now},
     ])
 
 

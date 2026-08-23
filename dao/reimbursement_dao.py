@@ -4,6 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from config.database import db
 from models.reimbursement import Reimbursement
+from models.expense_claim import ExpenseClaim
 
 
 class ReimbursementDao:
@@ -24,6 +25,16 @@ class ReimbursementDao:
     def get_by_claim_id(self, claim_id: int) -> Reimbursement | None:
         return db.session.scalar(
             db.select(Reimbursement).where(Reimbursement.claim_id == claim_id)
+        )
+
+    def get_by_employee_id(self, employee_id: int) -> list[Reimbursement]:
+        return list(
+            db.session.scalars(
+                db.select(Reimbursement)
+                .join(ExpenseClaim, Reimbursement.claim_id == ExpenseClaim.id)
+                .where(ExpenseClaim.employee_id == employee_id)
+                .order_by(Reimbursement.created_at.desc())
+            )
         )
 
     def get_by_status(self, status: str) -> list[Reimbursement]:
