@@ -3,7 +3,6 @@ from models.expense_receipt import ExpenseReceipt
 
 
 class ReceiptService:
-    """Thin application service for ExpenseReceipt persistence."""
 
     def __init__(self, receipt_dao: ExpenseReceiptDao):
         self.receipt_dao = receipt_dao

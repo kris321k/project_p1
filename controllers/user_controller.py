@@ -86,7 +86,6 @@ def update_user(user_id):
     except Exception as error:
         return jsonify({"error": str(error)}), 400
     
-
 @user_controller.route("/users/<int:user_id>", methods=["DELETE"])
 @require_roles("ADMIN", "SYSTEM_ADMIN")
 def delete_user(user_id):

@@ -4,7 +4,6 @@ from models.reimbursement import Reimbursement
 
 
 class ReimbursementService:
-    """Thin application service for Reimbursement persistence."""
 
     def __init__(self, reimbursement_dao: ReimbursementDao):
         self.reimbursement_dao = reimbursement_dao

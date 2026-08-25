@@ -3,7 +3,6 @@ from models.expense_category import ExpenseCategory
 
 
 class CategoryService:
-    """Thin application service for ExpenseCategory persistence."""
 
     def __init__(self, category_dao: ExpenseCategoryDao):
         self.category_dao = category_dao

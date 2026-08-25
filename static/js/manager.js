@@ -95,6 +95,8 @@ async function managerApp() {
 			} catch (error) { toast(error.message); }
 		}
 	});
+
+	
 	$('#register-user').onclick = () => { $('#register-panel').hidden = !$('#register-panel').hidden; };
 	$('#register-form').onsubmit = async event => {
 		event.preventDefault();
